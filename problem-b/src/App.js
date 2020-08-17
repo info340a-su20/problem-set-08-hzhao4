@@ -5,17 +5,16 @@ import _ from 'lodash';
 class App extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      pets: this.props.pets
-    }
+    this.state = {pets: this.props.pets}
   }
-  adopt(name) {
+
+  adopt = (name) => {
     this.setState(() => {
-      let pet = this.state.pets;
-      for (let i = 0; i < pet.length; i++) {
-        if (pet[i].name === name) pet[i] = {...pet[i], adopted: true};
+      let petArray = this.state.pets;
+      for (let i = 0; i < petArray.length; i++) {
+        if (petArray[i].name === name) petArray[i] = {...petArray[i], adopted: true};
       }
-      return {pets: pet}
+      return {pets: petArray}
     });
   }
 
@@ -29,13 +28,13 @@ class App extends Component {
       </header>
       <main className="container">
         <div className="row">
-          <div id="navs" class="col-3">
+          <div id="navs" className="col-3">
+            <BreedNav breeds={Object.keys(_.groupBy(this.state.pets, "breed"))}/>
+            <AboutNav />
           </div>
-          <AboutNav />
-
-          <div id="petList" class="col-9">
-            </div>
-          <BreedNav breeds={Object.keys(_.groupBy(this.state.pets, "petBreed"))}/>
+          <div id="petList" className="col-9">
+            <PetList pets={this.state.pets} adoptCallback={this.adopt} />
+          </div>
         </div>
       </main>
         <footer className="container">
@@ -51,7 +50,7 @@ class AboutNav extends Component {
     return (
       <nav id="aboutLinks">
         <h2>About</h2>
-        <ul class="list-unstyled">
+        <ul className="list-unstyled">
           <li><a href="#/">How to Adopt</a></li>
           <li><a href="#/">Volunteering</a></li>
           <li><a href="#/">Events</a></li>
@@ -80,26 +79,30 @@ class BreedNav extends Component {
 
 class PetCard extends Component {
   render() {
+    let newName = this.props.pet.name;
+    if (this.props.pet.adopted) {
+      newName = this.props.pet.name + " (Adopted)"
+    }
     return (
-      <div className="card" onClick={this.props.adoptCallback}>
-        <img className="card-img-top" src={this.props.pet.img} alt={this.props.pet.data.name} />
+      <div className="card" onClick={() => {this.props.adoptCallback(this.props.pet.name)}}>
+        <img className="card-img-top" src={this.props.pet.img} alt={this.props.pet.name} />
         <div className="card-body">
-          <h3 className="card-title">{this.props.pet.data.name}</h3>
-          <p className="card-text">{this.props.pet.data.sex} {this.props.pet.data.breed}</p>
+          <h3 className="card-title">{newName}</h3>
+          <p className="card-text">{this.props.pet.sex} {this.props.pet.breed}</p>
         </div>
       </div>
-    )
+    );
   }
 }
 
 class PetList extends Component {
   render() {
-    const adoptCallback = adoptCallback = this.props.adoptCallback;
+    const adoptCallback = this.props.adoptCallback;
     return (
       <div id="petList" className="col-9">
         <h2>Dogs for Adoption</h2>
         <div className="card-deck">
-          {this.props.pet.map((card) => {
+          {this.props.pets.map((card) => {
             return <PetCard key={card.name} pet={card} adoptCallback={adoptCallback}/>
           })}
         </div>
